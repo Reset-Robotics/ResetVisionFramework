@@ -1,8 +1,8 @@
 #Require correct version of cmake
 cmake_minimum_required (VERSION 2.8)
 
-#Set project name
-project (resetVision)
+#Set project name. Call this whatever you want
+project (ResetVision)
 
 #Find libraries
 find_package(OpenCV REQUIRED)
@@ -22,11 +22,11 @@ include_directories(/usr/local/lib)
 unset(CUDA_USE_STATIC_CUDA_RUNTIME CACHE)
 option(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
 
-#Creating executable for ahoy script
+#Creating executable for vision script. IMPORTANT! Change the doubleStreamVision.cpp/singleStreamVision.cpp to the name of your script.
 add_executable(singleStreamVision singleStreamVision.cpp)
 add_executable(doubleStreamVision doubleStreamVision.cpp)
 
-#Link libraries to ahoy executable
+#Link libraries to the executable. Change singleStreamVision to script name (without the .cpp).
 target_link_libraries(singleStreamVision ${OpenCV_LIBS})
 target_link_libraries(singleStreamVision zmq)
 target_link_libraries(singleStreamVision ${allwpilib/wpilibc/athena/include})
