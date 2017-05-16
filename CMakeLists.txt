@@ -22,19 +22,21 @@ include_directories(/usr/local/lib)
 unset(CUDA_USE_STATIC_CUDA_RUNTIME CACHE)
 option(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
 
-#Creating executable for vision script. IMPORTANT! Change the doubleStreamVision.cpp/singleStreamVision.cpp to the name of your script.
-add_executable(singleStreamVision singleStreamVision.cpp)
-add_executable(doubleStreamVision doubleStreamVision.cpp)
+#Creating executable for vision script. IMPORTANT! Change the resetFramework.cpp to the name of your script.
+#The first part is the name of the executable and the second part is the script name.
+#You can add another script by copying the line and changing first and second part for your second script
+add_executable(resetFramework resetFramework.cpp)
 
-#Link libraries to the executable. Change singleStreamVision to script name (without the .cpp).
-target_link_libraries(singleStreamVision ${OpenCV_LIBS})
-target_link_libraries(singleStreamVision zmq)
-target_link_libraries(singleStreamVision ${allwpilib/wpilibc/athena/include})
-target_link_libraries(singleStreamVision ${WPILib.h})
-target_link_libraries(singleStreamVision ${zmq.h})
 
-target_link_libraries(doubleStreamVision ${OpenCV_LIBS})
-target_link_libraries(doubleStreamVision zmq)
-target_link_libraries(doubleStreamVision ${allwpilib/wpilibc/athena/include})
-target_link_libraries(doubleStreamVision ${WPILib.h})
-target_link_libraries(doubleStreamVision ${zmq.h})
+#Link libraries to the executable. Change resetFramework to script name (without the .cpp).
+#You can add another script by copying all the lines below and change the resetFramework to the name of your 2nd script.
+
+target_link_libraries(resetFramework ${OpenCV_LIBS})
+# The 2 line below is for ZeroMQ. Remove if not using it.
+target_link_libraries(resetFramework zmq)
+target_link_libraries(resetFramework ${zmq.h})
+
+target_link_libraries(resetFramework ${allwpilib/wpilibc/athena/include})
+target_link_libraries(resetFramework ${WPILib.h})
+
+
