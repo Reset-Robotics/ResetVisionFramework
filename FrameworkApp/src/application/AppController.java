@@ -53,10 +53,7 @@ public class AppController {
 		  
 	}
 
-
-
-	
-	 @FXML
+	@FXML
 	 private void handleButtonAction(ActionEvent event) throws IOException {
 	     System.out.println("Generating File...");
 	     BufferedWriter writer = new BufferedWriter(new FileWriter("file.cpp"));
@@ -203,6 +200,33 @@ public class AppController {
 		     writer.write("break;");
 		     writer.write("\n}");
 	     }
+	     if(gpuAccelBox.isSelected()) {
+	    	 writer.write("\nsrc.upload(imgRaw);");
+	    	 writer.write("\ncv::gpu::resize(src, resize, cv::Size(camera1.get(CV_CAP_PROP_FRAME_WIDTH) / img_scale_factor, camera1.get(CV_CAP_PROP_FRAME_HEIGHT) / img_scale_factor), CV_INTER_CUBIC);");
+	    	 writer.write("\nresize.download(imgResize);");
+	    	 // Add more operations here
+	    	 if(hsvBox.isSelected()) {
+	    		 writer.write("cv::gpu::cvtColor(resize, hsv, CV_BGR2HSV);");
+	    		 writer.write("hsv.download(imgHSV);");
+		    	 if(cameraDropdown.getValue() == "2") {
+		    		 writer.write("cv::gpu::cvtColor(secondResize, secondHsv, CV_BGR2HSV);");
+		    		 writer.write("secondHsv.download(secondImgHSV);");
+		    	 }
+		    	 
+	    	 }
+	    	 
+	     } else {
+	    	 //Operations above without GPU Acceleration plus extra operations here.
+	     }
+	    
+	     
+	     // Filtering
+	  
+	     // Calculations
+	     
+	     
+	     
+	     // Sending Data
 	     
 	     writer.flush();
 	     writer.close();
