@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -15,6 +16,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -27,7 +29,7 @@ public class AppController {
 	@FXML
 	private CheckBox hsvBox;
 	@FXML
-	private CheckBox contoursBox;
+	private CheckBox contourBox;
 	@FXML
 	private CheckBox networkTableBox;
 	@FXML
@@ -38,17 +40,46 @@ public class AppController {
 	private ChoiceBox<String> cameraDropdown;
     @FXML
     private CheckBox exposureBox;
+    @FXML
+    private TextField portText;
+    @FXML
+    private CheckBox trackbarBox;
+    @FXML
+    private TextField hField;
 	@FXML
 	private void initialize()  {
 		cameraDropdown.setItems(FXCollections.observableArrayList("1", "2"));
+		hField.setVisible(false);
+		  
 	}
 
+
+
+	
 	 @FXML
 	 private void handleButtonAction(ActionEvent event) throws IOException {
 	     System.out.println("Generating File...");
 	     BufferedWriter writer = new BufferedWriter(new FileWriter("file.cpp"));
 	     
-	     writer.write("#include <opencv2/highgui/highgui.hpp> \n"
+	     writer.write("/*");
+	     writer.newLine();
+	     writer.newLine();
+	     writer.write("Reset Robotics, FRC Team #6325 - Vison Framework");
+	     writer.newLine();
+	     writer.newLine();
+	     writer.write("* Name          : Vision Framework Generator");
+	     writer.write("\n* Version       : 0.5.0");
+	     writer.write("\n* Build Date    : 22 May 2017");
+	     writer.write("\n* Last Updated    : 22 May 2017");
+	     writer.write("\n* Developed By  : Reset Robotics, FRC Team #6325");
+	     writer.write("\n* Author(s)     : Reset Robotics - Prajwal Vedula");
+	     writer.newLine();
+	     writer.write("\nCopyright (C) 2017 Reset Robotics");
+	     writer.newLine();
+	     writer.write("\n*/");
+	 
+	     
+	     writer.write("\n#include <opencv2/highgui/highgui.hpp> \n"
 					+ "#include <opencv2/imgproc/imgproc.hpp> \n"
 					+ "#include <stdio.h> \n"
 					+ "#include <stdlib.h> \n"
@@ -68,17 +99,22 @@ public class AppController {
 	     writer.write("\nint main() {");
 	     
 	     if(zmqBox.isSelected()) {
-	    	 writer.write("\nzmq::context_t context (1);");
+	    	 String port;
+	    	 if(portText.getText() != null) {
+	    		 port = portText.getText(); 
+	    	 } else {
+	    	  port = "5801";
+	    	 }
+	         writer.write("\nzmq::context_t context (1);");
 	    	 writer.write("\nzmq::socket_t publisher(context, ZMQ_PUB);");
-	    	 // Replace 5801 with port variable from text area
-	    	 writer.write("\npublisher.bind" + "(\"tcp://*:" + "5801" + ");");
+	    	 writer.write("\npublisher.bind" + "(\"tcp://*:" + port + "\");");
 	    	 
 	     }
 	     if(networkTableBox.isSelected()) {
 	    	 writer.write("\nNetworkTable::SetClientMode();");
-	    	 writer.write("\nNetworkTable::SetIPAddress(\"10.63.25.2\";");
+	    	 writer.write("\nNetworkTable::SetIPAddress(\"10.63.25.2\");");
 	    	 writer.write("\nNetworkTable::Initialize();");
-	    	 writer.write("\n std::shared_ptr<NetworkTable> table = NetworkTable::GetTable(\"vision\")");
+	    	 writer.write("\nstd::shared_ptr<NetworkTable> table = NetworkTable::GetTable(\"vision\")");
 
         //table->PutNumber("X", 5);");
 	    	}
@@ -86,17 +122,87 @@ public class AppController {
 	    	 // Can for loop this till the number of cameras if the arraylist contains integers.
 	    	 if(cameraDropdown.getValue() == "1"){
 	    		 // Replace video0 with indices that user inputs
-	    		 writer.write("\nsystem" + "(\"v4l2-ctl -d /dev/video0 -c exposure_auto=1\")");
-	    		 writer.write("\nsystem" + "(\"v4l2-ctl -d /dev/video0 -c exposure_absolute=5\")");
+	    		 writer.write("\nsystem" + "(\"v4l2-ctl -d /dev/video0 -c exposure_auto=1\");");
+	    		 writer.write("\nsystem" + "(\"v4l2-ctl -d /dev/video0 -c exposure_absolute=5\");");
 	    	 }
 	    	 if(cameraDropdown.getValue() == "2"){
-	    		 writer.write("\nsystem" + "(\"v4l2-ctl -d /dev/video0 -c exposure_auto=1\")");
-	    		 writer.write("\nsystem" + "(\"v4l2-ctl -d /dev/video1 -c exposure_auto=1\")");
-	    		 writer.write("\nsystem" + "(\"v4l2-ctl -d /dev/video0 -c exposure_absolute=5\")");
-	    		 writer.write("\nsystem" + "(\"v4l2-ctl -d /dev/video1 -c exposure_absolute=5\")");
+	    		 writer.write("\nsystem" + "(\"v4l2-ctl -d /dev/video0 -c exposure_auto=1\");");
+	    		 writer.write("\nsystem" + "(\"v4l2-ctl -d /dev/video1 -c exposure_auto=1\");");
+	    		 writer.write("\nsystem" + "(\"v4l2-ctl -d /dev/video0 -c exposure_absolute=5\");");
+	    		 writer.write("\nsystem" + "(\"v4l2-ctl -d /dev/video1 -c exposure_absolute=5\");");
 	    	 } 
 	     }
 	    
+	     writer.write("\nint img_scale_factor = 1; //halves the size of the picture");
+	     if(hsvBox.isSelected()) {
+	    	 // Get HSV from user and store in variable
+	    	 writer.write("\nint h_lowerb = ;");
+	    	 writer.write("\nint h_upperb = ;");
+	    	 writer.write("\nint s_lowerb = ;");
+	    	 writer.write("\nint s_upperb = ;");
+	    	 writer.write("\nint v_lowerb = ;");
+	    	 writer.write("\nint v_upperb = ;");
+	     }
+	     
+	     writer.write("\ncv::Mat imgRaw; //input image");
+	     writer.write("\ncv::Mat imgResize; //resized image");
+	     if(cameraDropdown.getValue() == "2"){
+	    	 writer.write("\ncv::Mat secondimgRaw; //input image");
+		     writer.write("\ncv::Mat secondimgResize; //resized image");
+	     }
+	     
+	     if(hsvBox.isSelected()) {
+	    	 writer.write("\ncv::Mat imgHSV; //switch to HSV colorspace");
+	    	 writer.write("\ncv::Mat imgThreshold; //apply threshold");
+	    	 if(cameraDropdown.getValue() == "2"){
+	    		 writer.write("\ncv::Mat secondimgHSV; //switch to HSV colorspace");
+		    	 writer.write("\ncv::Mat secondimgThreshold; //apply threshold");
+		     }
+	     }
+	     
+	     if(contourBox.isSelected()) {
+	    	 writer.write("\ncv::Mat imgContour;");
+	     }
+	     
+	     if(gpuAccelBox.isSelected()) {
+	    	 writer.write("\ncv::gpu::GpuMat src,resize;");
+	    	 if(cameraDropdown.getValue() == "2") {
+	    		 writer.write("\ncv::gpu::GpuMat secondSrc,secondResize;");
+	    	 }
+	    	 
+	    	 if(hsvBox.isSelected()) {
+	    		 writer.append("\ncv::gpu::GpuMat hsv,threshold;");
+	    		 if(cameraDropdown.getValue() == "2") {
+		    		 writer.write("\ncv::gpu::GpuMat secondHsv,secondThreshold;");
+		    	 }
+	    	 }
+	     }
+	     if(trackbarBox.isSelected()) {
+	    	 writer.write("\ncv::namedWindow(\"HSV Thresholding\"); \n" 
+	    			 + "cv::createTrackbar(\"Hue Lower Bound\", \"HSV Thresholding\", &h_lowerb, 179); \n"
+	    			 + "cv::createTrackbar(\"Hue Upper Bound\", \"HSV Thresholding\", &h_upperb, 179); \n"
+	    			 + "cv::createTrackbar(\"Hue Upper Bound\", \"HSV Thresholding\", &s_lowerb, 179); \n"
+	    			 + "cv::createTrackbar(\"Hue Upper Bound\", \"HSV Thresholding\", &s_upperb, 179); \n"
+	    			 + "cv::createTrackbar(\"Hue Upper Bound\", \"HSV Thresholding\", &l_lowerb, 179); \n"
+	    			 + "cv::createTrackbar(\"Hue Upper Bound\", \"HSV Thresholding\", &l_upperb, 179); \n");
+	     }
+	     // Use camera names from user
+	     writer.write("\ncv::VideoCapture camera1(0);");
+	     if(cameraDropdown.getValue() == "2"){
+	    	 writer.write("\ncv::VideoCapture camera2(1);");
+	     }
+	     writer.write("\nfor (;;) {");
+	     writer.write("\nif (!camera1.read(imgRaw)) {");
+	     writer.newLine();
+	     writer.write("break;");
+	     writer.write("\n}");
+	     
+	     if(cameraDropdown.getValue() == "2"){
+	    	 writer.write("\nif (!camera2.read(secondImgRaw)) {");
+		     writer.newLine();
+		     writer.write("break;");
+		     writer.write("\n}");
+	     }
 	     
 	     writer.flush();
 	     writer.close();
