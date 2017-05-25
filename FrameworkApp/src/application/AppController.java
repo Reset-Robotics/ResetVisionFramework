@@ -46,6 +46,8 @@ public class AppController {
     private CheckBox trackbarBox;
     @FXML
     private TextField hField;
+    @FXML
+    private CheckBox cmakeBox;
 	@FXML
 	private void initialize()  {
 		cameraDropdown.setItems(FXCollections.observableArrayList("1", "2"));
@@ -217,6 +219,11 @@ public class AppController {
 	    	 
 	     } else {
 	    	 //Operations above without GPU Acceleration plus extra operations here.
+	    	 writer.write("cv::resize(imgRaw, imgResize, cv::Size(camera1.get(CV_CAP_PROP_FRAME_WIDTH) / img_scale_factor, camera1.get(CV_CAP_PROP_FRAME_HEIGHT) / img_scale_factor), CV_INTER_CUBIC);");
+	    	 // Extra operations before Threshold
+	    	 if(hsvBox.isSelected()) {
+	    		 writer.write("cv::cvtColor(imgResize, imgHSV, CV_BGR2HSV");
+	    	 }
 	     }
 	    
 	     
@@ -227,6 +234,37 @@ public class AppController {
 	     
 	     
 	     // Sending Data
+	     
+	     
+	     
+	     // CMAKELists
+	     if(cmakeBox.isSelected()) {
+	    	 BufferedWriter cmakeWriter = new BufferedWriter(new FileWriter("CMakeLists.txt"));
+	    	 cmakeWriter.write("cmake_minimum_required (VERSION 2.8)");
+	    	 cmakeWriter.write("project (ResetVision)");
+	    	 cmakeWriter.write("find_package(OpenCV REQUIRED)");
+	    	 
+	    	 cmakeWriter.write("find_package(ZeroMQ REQUIRED)");
+	    	 
+	    	 cmakeWriter.write("set(CMAKE_CXX_FLAGS \"${CMAKE_CXX_FLAGS} -std=c++11\")");
+	    	 cmakeWriter.write("include_directories(${OpenCV_INCLUDE_DIRS})");
+	    	 cmakeWriter.write("include_directories(${allwpilib/wpilibc/athena/include})");
+	    	 cmakeWriter.write("include_directories(${WPILib.h})");
+	    	 cmakeWriter.write("include_directories(/usr/local/include)");
+	    	 cmakeWriter.write("include_directories(/usr/local/lib)");
+	    	 cmakeWriter.write("unset(CUDA_USE_STATIC_CUDA_RUNTIME CACHE)");
+	    	 cmakeWriter.write("option(CUDA_USE_STATIC_CUDA_RUNTIME OFF)");
+	    	 cmakeWriter.write("add_executable(resetFramework resetFramework.cpp)");
+	    	 cmakeWriter.write("target_link_libraries(resetFramework ${OpenCV_LIBS})");
+	    	 
+	    	 cmakeWriter.write("target_link_libraries(resetFramework zmq)");
+	    	 cmakeWriter.write("target_link_libraries(resetFramework ${zmq.h}))");
+	    	 
+	    	 cmakeWriter.write("target_link_libraries(target_link_libraries(resetFramework ${allwpilib/wpilibc/athena/include})");
+	    	 cmakeWriter.write("target_link_libraries(resetFramework ${WPILib.h})");
+	    	 
+	    	 
+	     }
 	     
 	     writer.flush();
 	     writer.close();
