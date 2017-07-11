@@ -24,9 +24,7 @@
 
  */
 // Step One
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include "opencv2/gpu/gpu.hpp"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,7 +38,13 @@
 #include <iomanip>
 #include <atomic>
 #include <unistd.h>
+// Communication Includes. Below is the ZMQ includes. Add your NetworkTable/UDP includes here.
 #include <zmq.hpp>
+
+// GPU Acceleration Includes. Comment out if not using GPU Acceleration
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include "opencv2/gpu/gpu.hpp"
 
 
 // Step Two
@@ -75,7 +79,7 @@ int main() {
     int img_scale_factor = 1; // Change scale factor to whatever you want to divide a 640 x 480 image by
     
     
-    //HSV Thresholding Defaults (purple LED ring and Exposure of 5 on camera) Change to your needs
+    //HSV Thresholding Vallues ( Currently at purple LED ring and Exposure of 5 on camera) Change to your needs
     int h_lowerb = 97;
     int h_upperb = 179;
     int s_lowerb = 185;
@@ -87,9 +91,9 @@ int main() {
     cv::Mat imgRaw; //input image
     cv::Mat imgResize; //image resized based on scale factor
     cv::Mat imgHSV; //switch to HSV colorspace
-    cv::Mat imgThreshold; //binary image from HSV thresholding
-    cv::Mat imgContour; //finding countours messes up the threshold image
-    cv::Mat imgOutput; //final image
+    cv::Mat imgThreshold; //HSV thresholding image
+    cv::Mat imgContour; // thresholded image copied to find contours so that thresholded image can be seen with imshow
+    cv::Mat imgOutput; // output image
     
     // Below you can add images for a second or third camera if needed, Remember to do it for both GPUMats and Regulat Mats
     
@@ -211,10 +215,10 @@ int main() {
         
         // Send values via NetworkTables or other communication protocol here
         
-      
+        // shows thresholded image
         cv::imshow("stream", imgThreshold);
         
-        //if spacebar is pressed, quit
+        //if spacebar is pressed, quit the program
         char c = cv::waitKey(1);
         if (c == ' ') {
             printf("Stream has ended.");
