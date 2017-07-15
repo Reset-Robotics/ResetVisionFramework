@@ -119,7 +119,7 @@ int main() {
     cv::createTrackbar("Value Upper Bound", "HSV Thresholding", &v_upperb, 255);
     
     // Add another contours variable for another camera if necessary
-    std::vector<std::vector<cv::Point> > contours; //array of contours (which are each an array of points)
+    std::vector<std::vector<cv::Point> > contours, filteredContours; //array of contours (which are each an array of points)
 
     
     //start the video. Change to whatever indices you are using.. Add another videoCapture for another camera.
@@ -175,45 +175,37 @@ int main() {
         // Step Five
         // Here you can do various methods and functions to filter out contours and what not.
         
-        // This creates bounding rectangles to start you off so that you can identify what contours are actual targets
-        for(int i = 0; i< contours.size(); i++ ) // iterate through each contour. 
+        // This iterates through each contours and will filter out any contours that do not pass the tests below.
+        // The contours that pass the tests will be pushed into the variable filteredContours.
+        // You can add/remove any filteration tests within this for loop.
+        filteredContours.clear();
+        for (std::vector<cv::Point> currentContour: contours) // enhanced for loop 
         {
          Rect boundRect = boundingRect(contours[i]);
          float contourArea = contourArea(contours[i]);  
          float aspectRatio = (float)boundRect.width/boundRect.height // Contour width/ contour height
          float solidityRatio = contourArea(contours[i])/(boundRect.width*boundRect.height); // the closer ratio to one, the more rectangle-y it is.
-         if (contourArea > maxArea || contourArea < minArea)
-          {
-              continue;
-         }
-         if (aspectRatio > maxAspectRatio || aspectRatio < minAspectRatio)
-          {
-              continue;
-         }
-         if (solidityRatio > maxSolidityRatio || solidityRatio < minASolidityRatio)
-          {
-              continue;
-         }
-         
+         if (contourArea > maxArea || contourArea < minArea) continue;
+         if (aspectRatio > maxAspectRatio || aspectRatio < minAspectRatio) continue;
+         if (solidityRatio > maxSolidityRatio || solidityRatio < minASolidityRatio) continue;
+     
+         filteredContours.push_back(currentContour);
 
-
-
-         
-        
         }
-        // Using the bounding rectangles created above filter it by whatever you want (size, aspect ratio, etc.) and put the resulting contours in a variable.
-
+       
         
         // End various filtering
         
         // Step Six
         
-        /* This is where the calculation happen. Targets is the output from all the filtering. Replace targets with the variable that has the final filtered contours. Do your calculation in the if statment. This one below calculates the centerX used for gears in Steamworks.
+        /* This is where the calculation happen. filteredContours is the output from all the filtering. 
          
          */
         
-        //if we identify all targets calculate centers
-        if (!targets.empty()) {
+        //If the filtered contours are not empty (is there any contours that passed the filtering)
+        // You can change this if statement to only calculate under conditions you want/
+        // For example, in Steamworks there were 2 vision tapes at the peg so you could do filteredContours==2 or filteredContours>=2
+        if (!filteredContours.empty()) {
             cv::Rect r = boundingRect(targets[1]);
             cv::Rect  r1 = boundingRect(targets[0]);
             double centerX= r.x + (r.width/2);
@@ -226,7 +218,7 @@ int main() {
             center = 0; //if no target is detected, send 0
         }
         // Step 7
-        // Sends message using ZMQ. Delete following 3 lines if not using ZMQ.
+        // Sends message using your communication protocl. Delete following 3 lines if not using ZMQ.
         zmq::message_t message(20);
         snprintf ((char *) message.data(), 20, "displacement %f %f", center;
         publisher.send(message);
