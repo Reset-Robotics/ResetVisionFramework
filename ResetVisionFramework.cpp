@@ -174,15 +174,17 @@ int main() {
     
         // Step Five
         // Here you can do various methods and functions to filter out contours and what not.
-        // Each part is comented on what it does right now
         
-    
         // This creates bounding rectangles to start you off so that you can identify what contours are actual targets
-        std::vector<cv::RotatedRect> boundRects(contours.size());
-        for(int i = 0; i < contours.size(); i++) {
-            boundRects[i] = cv::minAreaRect(cv::Mat(contours[i]));
-        }
+        for(int i = 0; i< contours.size(); i++ ) // iterate through each contour. 
+        {
+         Rect boundRect = boundingRect(contours[i]);
+         float contourArea = contourArea(contours[i]);
+         float aspectRatio = (float)boundRect.width/boundRect.height
+         float solidityRatio = contourArea(contours[i])/(boundRect.width*boundRect.height);
+         
         
+        }
         // Using the bounding rectangles created above filter it by whatever you want (size, aspect ratio, etc.) and put the resulting contours in a variable.
 
         
