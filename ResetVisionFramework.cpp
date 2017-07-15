@@ -182,15 +182,15 @@ int main() {
          float contourArea = contourArea(contours[i]);  
          float aspectRatio = (float)boundRect.width/boundRect.height // Contour width/ contour height
          float solidityRatio = contourArea(contours[i])/(boundRect.width*boundRect.height); // the closer ratio to one, the more rectangle-y it is.
-         if (contourArea < maxArea || contourArea > minArea)
+         if (contourArea > maxArea || contourArea < minArea)
           {
               continue;
          }
-         if (aspectRatio < maxAspectRatio || aspectRatio > minAspectRatio)
+         if (aspectRatio > maxAspectRatio || aspectRatio < minAspectRatio)
           {
               continue;
          }
-         if (solidityRatio < maxSolidityRatio || solidityRatio > minASolidityRatio)
+         if (solidityRatio > maxSolidityRatio || solidityRatio < minASolidityRatio)
           {
               continue;
          }
