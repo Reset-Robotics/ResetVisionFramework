@@ -206,8 +206,8 @@ int main() {
         // You can change this if statement to only calculate under conditions you want/
         // For example, in Steamworks there were 2 vision tapes at the peg so you could do filteredContours==2 or filteredContours>=2
         if (!filteredContours.empty()) {
-            cv::Rect r = boundingRect(targets[1]);
-            cv::Rect  r1 = boundingRect(targets[0]);
+            cv::Rect r = boundingRect(filteredContours[1]);
+            cv::Rect  r1 = boundingRect(filteredContours[0]);
             double centerX= r.x + (r.width/2);
             double centerX1= r1.x + (r1.width/2);
             center = ((centerX + centerX1) / 2);
